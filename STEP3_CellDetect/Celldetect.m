@@ -15,21 +15,24 @@
 % row9 information rate(the calculation is different for Grid/Border)
 % row10 
 % mean rate of grid and HD cell are calculated in the same way.
+%                                          Created by TJY,2023-2-10
+%                                          Modified by TJY,2023-4-22
+%                                          Modified by TJY,2023-9-12
 
 
 clear;
-addpath(genpath('D:\Test_code\Tools'));
-addpath(genpath('D:\Test_code\MINI2P_toolbox'));
-addpath(genpath('D:\Test_code\MINI2P_toolbox\Analysis'));
+addpath(genpath('D:\code\Tools'));
+addpath(genpath('D:\code\MINI2P_toolbox'));
+addpath(genpath('D:\code\MINI2P_toolbox\Analysis'));
 
-load([pwd,'\321-20250311-2\method2\shuffle_ratemap_new3\shuffle_ratemap_new2.mat']) 
-load([pwd,'\321-20250311-2\method2\NeuronActivity.mat']);
-mkdir('HD-data');
+load([pwd,'\method2\shuffle_ratemap_new3\shuffle_ratemap_new2.mat']) 
+load([pwd,'\method2\NeuronActivity.mat']);
+mkdir('HD-data')
 mkdir('Grid-data');
 mkdir('Border-data');
 mkdir('Spatial-data');
-%% 
-mouseNum = 321;
+%% change this!!!!!!!!!!!!!!!!!!!!!!!!!
+mouseNum = 349;
 baselineNum = 2;
 
 threshold_Grid = 0.3;
@@ -168,14 +171,18 @@ for ii = 1:NeuronActivity.CellNum
         spike_pos_2(:,4) = spike_pos(spike_end_1 + 1:end,4);
        
         ActivityMap_2 = SpatialTuning_BNT.map(behav_pos_2,spike_pos_2(:,1),'smooth',smooth_space,'binWidth',bin_space,'minTime',Mintime,'limits',Limits);
-    
-    % calculate inter-session stability
+        
+        % calculate inter-session stability
         map1 = ActivityMap_1.z;
         map2 = ActivityMap_2.z;
-       stability(ii) = analyses.spatialCrossCorrelation(map1,map2);
-    
+        if ~isempty(map1) && ~isempty(map2)
+            stability(ii) = analyses.spatialCrossCorrelation(map1,map2);
+        else
+            stability(ii) = NaN;
+        end
+        
      else
-         stability(ii) = NaN; 
+         stability(ii) = NaN;
      end
 end
 %% Grid cell
@@ -191,7 +198,7 @@ peak_rate = [];
 mean_rate = [];
 
 for j = 1:length(Gridlist)
-     if Gridness_shuffle(Gridlist(j),1003) >= 0 %delete gird cells with negative score
+     if Gridness_shuffle(Gridlist(j),1003) >= 0
         if stability(Gridlist(j)) >= threshold_Grid
            
             cellNum = [cellNum;Gridlist(j)];
@@ -303,11 +310,14 @@ for ii = 1:NeuronActivity.CellNum
         spike_pos_1(:,4) = spike_pos(1:spike_end_1,4);
         spike_pos_1(:,5) = spike_pos(1:spike_end_1,5);
         spike_pos_1(:,6) = spike_pos(1:spike_end_1,6);
-
-        turningCurve_1 = SpatialTuning_BNT.turningCurve(spike_pos_1(:,6),behav_pos_1(:,5),sampleTime,'smooth',AngleSmooth,'binWidth',AngleBinsize);
-%         tcStat_1 = SpatialTuning_BNT.tcStatistics(turningCurve{1,i} , AngleBinsize, 49);
-        turning1 = turningCurve_1(:,2);
-    
+        if ~isempty(spike_pos_1)
+            turningCurve_1 = SpatialTuning_BNT.turningCurve(spike_pos_1(:,6),behav_pos_1(:,5),sampleTime,'smooth',AngleSmooth,'binWidth',AngleBinsize);
+            %         tcStat_1 = SpatialTuning_BNT.tcStatistics(turningCurve{1,i} , AngleBinsize, 49);
+            turning1 = turningCurve_1(:,2);
+        else
+            turning1 = [];
+        end
+        
       
         half_2_start = half_1_end + 1;
         behav_pos_2 = [];
@@ -326,12 +336,18 @@ for ii = 1:NeuronActivity.CellNum
         spike_pos_2(:,4) = spike_pos(spike_end_1 + 1:end,4);
         spike_pos_2(:,5) = spike_pos(spike_end_1 + 1:end,5);
         spike_pos_2(:,6) = spike_pos(spike_end_1 + 1:end,6);
-    
+     if ~isempty(spike_pos_2) 
         turningCurve_2 = SpatialTuning_BNT.turningCurve(spike_pos_2(:,6),behav_pos_2(:,5),sampleTime,'smooth',AngleSmooth,'binWidth',AngleBinsize);
 %         tcStat_1 = SpatialTuning_BNT.tcStatistics(turningCurve{1,i} , AngleBinsize, 49);
         turning2 = turningCurve_2(:,2);
-    
+     else
+         turning2 = [];
+     end
+       if ~isempty(turning1) & ~isempty(turning2)
        stability_HD(ii) = corr(turning1,turning2);
+       else
+           stability_HD(ii) = NaN;
+       end
     
      else
          stability_HD(ii) = NaN; 

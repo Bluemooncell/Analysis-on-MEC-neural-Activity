@@ -1,7 +1,7 @@
 # README: Analysis Scripts for MEC Neuronal Activity 
 This repository contains the analysis scripts and methodological documentation for the manuscript.
 Most of the data preprocessing, cell selection, and statistical analyses were performed using MATLAB. A subset of dimensionality reduction analysis using Linear Discriminant Analysis (LDA) was conducted in Python.
-Due to the file size limitation, the sample data available for the operation of the following script is placed at https://zenodo.org/records/15656068
+
 ---
 
 ## 1. System Requirements
@@ -31,10 +31,11 @@ Our raw dataset includes two types of recordings:
 - **CellVideo**: two-photon calcium imaging videos
 - **MiceVideo**: behavioral videos from overhead cameras
 
-Due to the large size of the original video data and sample scale, we provide a demo dataset from one mouse (**#321**, Exp.2) as a representative example. The example files are stored in the `Example_Data` directory.
+Due to the large size of the original video data and sample scale, we provide a demo dataset from one mouse (**#349**, E2M07) as a representative example. The example files are stored in the `Example_Data` directory.
 
-- `321-20250311-2` corresponds to the baseline light session (L2)
-- `321-20250311-3` corresponds to the light session after whisker trimming (LW2)
+- `349-20251224-2` corresponds to the baseline dark session in E2
+- `349-20251224-3` corresponds to the dark after whisker trimming (DW) in E2
+- `349-20251224-4` corresponds to the wall removal session after whisker trimming (DWR') in E2
 
 These folders each include the following:
 - `Fall.mat`: output file from Suite2P containing ROI and raw fluorescence traces
@@ -75,12 +76,9 @@ Once you obtain both `NeuronActivity.mat` and `behav.mat` for each session, the 
 
 Additional analyses and visualizations are available in `STEP4_FurtherAnalysis/`, including:
 
-- GMM clustering (using MATLAB’s `fitgmdist` function)
-  - Example: clustering HD cells using extracted feature matrix `X`, stored in the same folder
-
 - LDA-based projection and cross-session decoding:
   - Implemented in Python (`run_all_traj_crosssession.py`)
-  - Sample input data provided for **Mouse #49 (Exp.1)** under `Example_Data/`
+  - Sample input data provided for **Mouse #49 (E1M03)** under `Example_Data/`
 ---
 
 ## 3. Getting Started
@@ -92,17 +90,3 @@ Additional analyses and visualizations are available in `STEP4_FurtherAnalysis/`
 3. Follow the folder structure and script order to identify spatally modulated cells and thier tuning properties:
    - STEP1 → STEP2 → STEP3
 4. For Python-based LDA projection, run 'run_all_traj_crosssession.py' based on the provided data (Example:'49-20230127')
-
-# Whisker-Related Analysis
-
-Analyses related to whisker-related experiments are stored separately in the "Example_Data" and "whisker" directories. The example data includes two datasets:
-
-322-20250324: raw data from the texture discrimination task, used in Figure S18
-322-20250327: data collected from high-speed top-down whisker tracking, used to extract whisker-responsive neurons based on calcium activity, as shown in Figure S17
-
-Scripts for whisker-based analysis include:
-texture_svm_alltime.m: performs SVM decoding for texture classification
-Shuffle_singlespike_prepostEvent.m: conducts a shuffle-based analysis to identify neurons with selective responses during texture presentations
-calculate_whisker_movement.m: identifiy whisker-responsive cells based on the correlation between whisker movement and  calcium signals (Figure S17)
-
-* All the individual script can be run to completion within a few hours.
